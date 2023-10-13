@@ -1,5 +1,6 @@
 package com.diego.loansystem.service;
 
+import com.diego.loansystem.exception.InvalidLoanAmountException;
 import com.diego.loansystem.exception.InvalidLoanDurationException;
 import com.diego.loansystem.exception.InvalidLoanTypeException;
 import com.diego.loansystem.exception.InvalidPayloadException;
@@ -11,34 +12,34 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 
-public class CalculateService {
+public class LoanService {
 
     ObjectMapper objectMapper = new ObjectMapper();
 
     //must return projected fees
-    public String calculateLoanFees(JsonNode loan){
+    public String calculateLoanFees(JsonNode loan) throws InvalidLoanDurationException, InvalidLoanTypeException, InvalidPayloadException, InvalidLoanAmountException {
         return calculateFeesOrInstallments(loan, "fees");
     }
 
     //must return projected installments
-    public String calculateLoanInstallments(JsonNode loan){
+    public String calculateLoanInstallments(JsonNode loan) throws InvalidLoanDurationException, InvalidLoanTypeException, InvalidPayloadException, InvalidLoanAmountException {
         return calculateFeesOrInstallments(loan, "installments");
     }
 
-    private String calculateFeesOrInstallments(JsonNode loanData, String option){
+    private String calculateFeesOrInstallments(JsonNode loanData, String option) throws InvalidLoanDurationException, InvalidLoanTypeException, InvalidPayloadException, InvalidLoanAmountException {
         Loan loan = null;
         try {
             loan = objectMapper.readValue(loanData.toString(), Loan.class);
         } catch (JsonProcessingException e) {
-            try {
                 throw new InvalidPayloadException("Something is wrong with the payload. Make sure it has loan amount, loan duration, and loan type. Ex.: {" +
                         "   'amount': 1000," +
                         "   'duration': 12," +
                         "   'type': 'monthly'" +
                         "}");
-            } catch (InvalidPayloadException ex) {
-                throw new RuntimeException(ex);
-            }
+        }
+
+        if(loan.getAmount() <= 0){
+            throw new InvalidLoanAmountException("Loan amount must be a positive number.");
         }
 
         StringBuilder answer = new StringBuilder();
@@ -52,11 +53,7 @@ public class CalculateService {
 
             //maximum number of weeks is 4.
             if(loan.getDuration() > 4 || loan.getDuration() < 1){
-                try {
-                    throw new InvalidLoanDurationException("Invalid duration for this type of loan. Weekly loans must be from 1 to 4 weeks.");
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
-                }
+                throw new InvalidLoanDurationException("Invalid duration for this type of loan. Weekly loans must be from 1 to 4 weeks.");
             }
 
             double totalFee = loan.getAmount() * (0.01*loan.getDuration());
@@ -97,11 +94,7 @@ public class CalculateService {
 
             //maximum number of months is 12.
             if(loan.getDuration() > 12 || loan.getDuration() < 1){
-                try {
-                    throw new InvalidLoanDurationException("Invalid duration for this type of loan. Monthly loans must be from 1 to 12 months.");
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
-                }
+                throw new InvalidLoanDurationException("Invalid duration for this type of loan. Monthly loans must be from 1 to 12 months.");
             }
 
             double totalFee = loan.getAmount() * (0.04*loan.getDuration());
@@ -137,11 +130,7 @@ public class CalculateService {
                 currentDate = currentDate.plus(1, ChronoUnit.MONTHS);
             }
         }else{
-            try {
-                throw new InvalidLoanTypeException("Invalid loan type. The allowed types are 'weekly' and 'monthly'.");
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
+            throw new InvalidLoanTypeException("Invalid loan type. The allowed types are 'weekly' and 'monthly'.");
         }
 
         return answer.toString();
