@@ -18,14 +18,14 @@ public class CalculateService {
     }
 
     private String calculateFeesOrInstallments(Loan loan, String option){
-        String answer = "";
+        StringBuilder answer = new StringBuilder();
         LocalDate currentDate = LocalDate.now();
         double installment = loan.getAmount() / loan.getDuration();
 
         //1% per week + 0.5% of the principal (cap in $50) every 2 weeks
         if(loan.getType().equals("weekly")){
             //first installment in a week
-            currentDate = currentDate = currentDate.plus(1, ChronoUnit.WEEKS);
+            currentDate = currentDate.plus(1, ChronoUnit.WEEKS);
 
             //maximum number of weeks is 4.
             if(loan.getDuration() > 4){
@@ -45,20 +45,20 @@ public class CalculateService {
             double biweeklyTotalInstallment = 0;
             for(int i=1; i<=loan.getDuration(); i++){
                 if(option.equals("fees")) {
-                    answer += dateFormat(currentDate) + " => " + weeklyFee + "\n";
+                    answer.append(dateFormat(currentDate) + " => " + weeklyFee + "\n");
                 }else{
                     if(i%2==0) {
                         biweeklyTotalInstallment = installment + weeklyFee;
                     }else{
-                        answer += dateFormat(currentDate) + " => " + (installment + weeklyFee) + "\n";
+                        answer.append(dateFormat(currentDate) + " => " + (installment + weeklyFee) + "\n");
                     }
                 }
                 //every 2 weeks, 0.5% of the principal (cap in $50) is added as a fee
                 if(i%2==0){
                     if(option.equals("fees")) {
-                        answer += dateFormat(currentDate) + " => " + biWeeklyFee + "\n";
+                        answer.append(dateFormat(currentDate) + " => " + biWeeklyFee + "\n");
                     }else{
-                        answer += dateFormat(currentDate) + " => " + (biweeklyTotalInstallment+biWeeklyFee) + "\n";
+                        answer.append(dateFormat(currentDate) + " => " + (biweeklyTotalInstallment+biWeeklyFee) + "\n");
                     }
                 }
 
@@ -85,21 +85,21 @@ public class CalculateService {
             double quarterTotalInstallment = 0;
             for(int i=1; i<=loan.getDuration(); i++){
                 if(option.equals("fees")) {
-                    answer += dateFormat(currentDate) + " => " + monthlyFee + "\n";
+                    answer.append(dateFormat(currentDate) + " => " + monthlyFee + "\n");
                 }else{
                     if(i%3==0) {
                         quarterTotalInstallment = installment + monthlyFee;
                     }else{
-                        answer += dateFormat(currentDate) + " => " + (installment + monthlyFee) + "\n";
+                        answer.append(dateFormat(currentDate) + " => " + (installment + monthlyFee) + "\n");
                     }
                 }
 
                 //every 3 months, 0.5% of the principal (cap in $100) is added as a fee
                 if(i%3==0){
                     if(option.equals("fees")) {
-                        answer += dateFormat(currentDate) + " => " + quarterFee + "\n";
+                        answer.append(dateFormat(currentDate) + " => " + quarterFee + "\n");
                     }else{
-                        answer += dateFormat(currentDate) + " => " + (quarterTotalInstallment+quarterFee) + "\n";
+                        answer.append(dateFormat(currentDate) + " => " + (quarterTotalInstallment+quarterFee) + "\n");
                     }
                 }
 
@@ -113,7 +113,7 @@ public class CalculateService {
             }
         }
 
-        return answer;
+        return answer.toString();
     }
 
     private String dateFormat(LocalDate localDate){
