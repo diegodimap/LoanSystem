@@ -103,7 +103,7 @@ public class LoanService {
 
             //quarter fee cap to $100
             if(quarterFee > 100){
-                quarterFee = 50;
+                quarterFee = 100;
             }
 
             double quarterTotalInstallment = 0;
