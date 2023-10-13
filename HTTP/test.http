@@ -1,0 +1,37 @@
+# curl --location 'http://localhost:8080/installments'
+#--data '{
+#   "amount": 3000,
+#   "duration": 3,
+#   "type": "weekly"
+#}'
+POST http://localhost:8080/installments
+Content-Type: application/json
+
+{
+   "amount": 3000,
+   "duration": 3,
+   "type": "weekly"
+}
+
+###
+
+# curl --location 'http://localhost:8080/fees'
+#--header 'Content-Type: application/json'
+#--data '{
+#   "amount": 1000,
+#   "duration": 4,
+#   "type": "weekly"
+#}'
+POST http://localhost:8080/fees
+Content-Type: application/json
+
+{
+  "amount": 1000,
+  "duration": 4,
+  "type": "weekly"
+}
+
+###
+
+
+

@@ -10,19 +10,17 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 public class LoanController {
 
-    ObjectMapper objectMapper = new ObjectMapper();
+
     CalculateService calculateService = new CalculateService();
 
     @PostMapping("/fees")
     public String calculateLoanFees(@RequestBody JsonNode loanData) throws JsonProcessingException {
-        Loan loan = objectMapper.readValue(loanData.toString(), Loan.class);
-        return calculateService.calculateLoanFees(loan);
+        return calculateService.calculateLoanFees(loanData);
     }
 
     @PostMapping("/installments")
     public String calculateLoanInstallments(@RequestBody JsonNode loanData) throws JsonProcessingException {
-        Loan loan = objectMapper.readValue(loanData.toString(), Loan.class);
-        return calculateService.calculateLoanInstallments(loan);
+        return calculateService.calculateLoanInstallments(loanData);
     }
 
 
